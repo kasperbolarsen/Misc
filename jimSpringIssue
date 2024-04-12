@@ -1,0 +1,81 @@
+#Jim Spring test
+$connection = Connect-PnPOnline -Url https://tcwlv-admin.sharepoint.com/ -Interactive -ReturnConnection
+$HubSites = @()
+$HubSites += "https://tcwlv.sharepoint.com/sites/HubSite1"
+$HubSites += "https://tcwlv.sharepoint.com/sites/HubSite2"
+$HubSites += "https://tcwlv.sharepoint.com/sites/HubSite3"
+
+foreach($site in $HubSites)
+{
+    $name = $site.Split("/")[-1]
+    New-PnPSite -Type CommunicationSite -Title $name -Url $site -Owner "Admin@tcwlv.onmicrosoft.com" -Connection $connection 
+    #make the site a hub site
+    Register-PnPHubSite -Site $site -Connection $connection
+}
+
+$SitesForHubSite1 = @()
+$SitesForHubSite1 += "https://tcwlv.sharepoint.com/sites/HubSite1A"
+$SitesForHubSite1 += "https://tcwlv.sharepoint.com/sites/HubSite1B"
+$SitesForHubSite1 += "https://tcwlv.sharepoint.com/sites/HubSite1C"
+$SitesForHubSite1 += "https://tcwlv.sharepoint.com/sites/HubSite1D"
+
+foreach($site in $SitesForHubSite1)
+{
+    $name = $site.Split("/")[-1]
+    #New-PnPSite -Type CommunicationSite -Title $name -Url $site -Owner "Admin@tcwlv.onmicrosoft.com" -Connection $connection
+    #connect the site to the hub site
+    Add-PnPHubSiteAssociation -Site $site  -HubSite "https://tcwlv.sharepoint.com/sites/HubSite1" -Connection $connection
+}
+
+$SitesForHubSite2 = @()
+$SitesForHubSite2 += "https://tcwlv.sharepoint.com/sites/HubSite2A"
+$SitesForHubSite2 += "https://tcwlv.sharepoint.com/sites/HubSite2B"
+$SitesForHubSite2 += "https://tcwlv.sharepoint.com/sites/HubSite2C"
+$SitesForHubSite2 += "https://tcwlv.sharepoint.com/sites/HubSite2D"
+
+foreach($site in $SitesForHubSite2)
+{
+    $name = $site.Split("/")[-1]
+    New-PnPSite -Type CommunicationSite -Title $name -Url $site -Owner "Admin@tcwlv.onmicrosoft.com" -Connection $connection
+    #connect the site to the hub site
+    Add-PnPHubSiteAssociation -Site $site -HubSite "https://tcwlv.sharepoint.com/sites/HubSite2" -Connection $connection
+}
+
+$SitesForHubSite3 = @()
+$SitesForHubSite3 += "https://tcwlv.sharepoint.com/sites/HubSite3A"
+$SitesForHubSite3 += "https://tcwlv.sharepoint.com/sites/HubSite3B"
+$SitesForHubSite3 += "https://tcwlv.sharepoint.com/sites/HubSite3C"
+$SitesForHubSite3 += "https://tcwlv.sharepoint.com/sites/HubSite3D"
+
+foreach($site in $SitesForHubSite3)
+{
+    $name = $site.Split("/")[-1]
+    New-PnPSite -Type CommunicationSite -Title $name -Url $site -Owner "Admin@tcwlv.onmicrosoft.com" -Connection $connection
+    #connect the site to the hub site
+
+    Add-PnPHubSiteAssociation -Site $site -HubSite "https://tcwlv.sharepoint.com/sites/HubSite3" -Connection $connection
+}
+
+$found = $false
+while ($found -eq $false) 
+{
+    
+
+    $query = "path:https://tcwlv.sharepoint.com/sites/HubSite1*"
+    $res = Invoke-PnPSearchQuery -Query $query -Connection $connection
+    $res.ResultRows.Count
+    if($res.ResultRows.Count -gt 0)
+    {
+        $found = $true
+    }
+    else
+    {
+        Write-Host "Waiting for search to complete"
+        Start-Sleep -Seconds 60
+    }
+    foreach($row in $res.ResultRows)
+    {
+        Write-Host $row.Path
+    }
+
+}
